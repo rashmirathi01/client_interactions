@@ -1,7 +1,10 @@
 from bson import json_util, ObjectId
 from flask import Flask
+from flask import request
 
 from app.helpers import mongo_client
+
+import dateutil.parser
 
 API_VERSION = '1.0'
 
@@ -39,8 +42,25 @@ def engagements_by_id(engagement_id):
 
 @app.route('/interactions')
 def interactions():
-    # TODO: Modify this endpoint according to problem statement!
-    return json_util.dumps(db.interactions.find({}))
+@app.route('/interactions')
+def interactions():
+	queryParams = request.args
+	engagementId = queryParams.get('engagementId')
+	response = None
+	if engagementId is None:
+		response = {'error': 'Mandatory parameter engagementId is missing'}
+	elif not ObjectId.is_valid(engagementId):
+		response = {'error': 'Value of mandatory parameter engagementId is not valid'}
+	else:
+		dbFilterParams = {'engagementId': ObjectId(engagementId)}
+		interactionDate = queryParams.get('interactionDate')
+		if interactionDate is not None:
+			try:
+				dbFilterParams['interactionDate'] = dateutil.parser.parse(interactionDate)
+			except:
+				print("InteractionData is not a valid date.. Ignoring the parameter")
+		response = db.interactions.find(dbFilterParams)
+	return json_util.dumps(response)
 
 
 @app.route('/interactions/<interaction_id>')
