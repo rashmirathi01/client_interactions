@@ -42,8 +42,6 @@ def engagements_by_id(engagement_id):
 
 @app.route('/interactions')
 def interactions():
-@app.route('/interactions')
-def interactions():
 	queryParams = request.args
 	engagementId = queryParams.get('engagementId')
 	response = None
